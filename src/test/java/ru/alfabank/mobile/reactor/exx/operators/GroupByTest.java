@@ -73,7 +73,7 @@ public class GroupByTest {
     }
 
     @Test
-    void groupByWithFlatMapNoTimeoutBecauseOfSmallPrefetch9Elements() {
+    void groupByWithFlatMapFineWithSmallPrefetchOn9Elements() {
         int elementsCount = 9;
         int groupsAmount = 3;
         int flatMapConcurrency = 2;
@@ -100,12 +100,12 @@ public class GroupByTest {
     }
 
     @Test
-    void groupByWithFlatMapTimeoutBecauseOfSmallPrefetch10Elements() {
+    void groupByWithFlatMapTimeoutBecauseOfSmallPrefetch10ElementsOfRange() {
         int elementsCount = 10;
         int groupsAmount = 3;
         int flatMapConcurrency = 2;
         int groupByPrefetch = 3;
-        Duration stepVerifierTimeout = Duration.ofSeconds(10);
+        Duration stepVerifierTimeout = Duration.ofSeconds(3);
         StepVerifier.create(
                         Flux.range(0, elementsCount)
                                 .log("range", Level.INFO, SignalType.REQUEST, SignalType.ON_NEXT)
@@ -127,11 +127,40 @@ public class GroupByTest {
     }
 
     @Test
-    void groupByWithConcatMapTimeoutBecauseOfSmallPrefetch() {
+    void groupByWithFlatMapTimeoutBecauseOfSmallPrefetchOnSpecificElements() {
+        int groupsAmount = 3;
+        int flatMapConcurrency = 2;
+        int groupByPrefetch = 3;
+        Duration stepVerifierTimeout = Duration.ofSeconds(3);
+        StepVerifier.create(
+                        Flux.just(
+                                        0, // 0 group
+                                        1, // 1 group
+                                        2, 5, 8, // 2 group
+                                        9 // will never be requested
+                                )
+                                .log("range", Level.INFO, SignalType.REQUEST, SignalType.ON_NEXT)
+                                .groupBy(
+                                        i -> "modulo is %s:".formatted(i % groupsAmount),
+                                        groupByPrefetch
+                                )
+                                .flatMap((GroupedFlux<String, Integer> g) ->
+                                                g.log("groupedFlux " + g.key(), Level.INFO, SignalType.REQUEST, SignalType.ON_NEXT)
+                                                        .map(String::valueOf)
+                                                        .startWith(g.key()),
+                                        flatMapConcurrency)
+                                .log("flatMapped", Level.INFO, SignalType.ON_NEXT, SignalType.CANCEL)
+                )
+                .expectNext("modulo is 0:", "0")
+                .expectNext("modulo is 1:", "1")
+                .verifyTimeout(stepVerifierTimeout);
+    }
+
+    @Test
+    void groupByWithConcatMapFineWithBigPrefetch() {
         int elementsCount = 10;
-        int groupsAmount = 4;
+        int groupsAmount = 3;
         int groupByPrefetch = 10;
-        Duration stepVerifierTimeout = Duration.ofSeconds(10);
         StepVerifier.create(
                         Flux.range(0, elementsCount)
                                 .log("range", Level.INFO, SignalType.REQUEST, SignalType.ON_NEXT)
@@ -142,7 +171,29 @@ public class GroupByTest {
                                                 .startWith(g.key()))
                                 .log("concatMap", Level.INFO, SignalType.ON_NEXT, SignalType.CANCEL)
                 )
-                .expectNextCount(8)
+                .expectNext("modulo is 0:", "0", "3", "6", "9")
+                .expectNext("modulo is 1:", "1", "4", "7")
+                .expectNext("modulo is 2:", "2", "5", "8")
+                .verifyComplete();
+    }
+
+    @Test
+    void groupByWithConcatMapTimeoutWithSmallPrefetch() {
+        int elementsCount = 10;
+        int groupsAmount = 3;
+        int groupByPrefetch = 3;
+        Duration stepVerifierTimeout = Duration.ofSeconds(3);
+        StepVerifier.create(
+                        Flux.range(0, elementsCount)
+                                .log("range", Level.INFO, SignalType.REQUEST, SignalType.ON_NEXT)
+                                .groupBy(i -> "modulo is %s:".formatted(i % groupsAmount), groupByPrefetch)
+                                .concatMap((GroupedFlux<String, Integer> g) ->
+                                        g.defaultIfEmpty(-1)
+                                                .map(String::valueOf)
+                                                .startWith(g.key()))
+                                .log("concatMap", Level.INFO, SignalType.ON_NEXT, SignalType.CANCEL)
+                )
+                .expectNext("modulo is 0:", "0")
                 .verifyTimeout(stepVerifierTimeout);
     }
 }
