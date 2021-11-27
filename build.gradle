@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.alfabank.mobile.reactor.exx'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//    implementation platform('io.projectreactor:reactor-bom:2020.0.13')
+    implementation 'io.projectreactor:reactor-core:3.4.12'
+    implementation 'io.projectreactor:reactor-core:3.4.12'
+
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.7'
+    implementation 'ch.qos.logback:logback-core:1.2.7'
+
+    testImplementation 'io.projectreactor:reactor-test:3.4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}

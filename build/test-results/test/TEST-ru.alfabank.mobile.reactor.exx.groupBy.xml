@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.alfabank.mobile.reactor.exx.groupBy" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-11-27T16:30:47" hostname="s14video-mon01.regions.alfaintra.net" time="10.229">
+  <properties/>
+  <testcase name="groupByWithFlatMapHangsBecauseOfSmallPrefetch()" classname="ru.alfabank.mobile.reactor.exx.groupBy" time="10.229"/>
+  <system-out><![CDATA[19:30:47.965 [Test worker] DEBUG reactor.util.Loggers - Using Slf4j logging framework
+19:30:48.036 [Test worker] INFO range - | request(3)
+19:30:48.042 [Test worker] INFO flatMapped - onNext(modulo is 0:)
+19:30:48.043 [Test worker] INFO flatMapped - onNext(0)
+19:30:48.044 [Test worker] INFO range - | request(1)
+19:30:48.044 [Test worker] INFO flatMapped - onNext(modulo is 1:)
+19:30:48.045 [Test worker] INFO flatMapped - onNext(1)
+19:30:48.045 [Test worker] INFO range - | request(1)
+19:30:48.046 [Test worker] INFO flatMapped - onNext(3)
+19:30:48.046 [Test worker] INFO range - | request(1)
+19:30:48.047 [Test worker] INFO flatMapped - onNext(4)
+19:30:48.047 [Test worker] INFO range - | request(1)
+19:30:48.048 [Test worker] INFO flatMapped - onNext(6)
+19:30:48.049 [Test worker] INFO range - | request(1)
+19:30:48.049 [Test worker] INFO flatMapped - onNext(7)
+19:30:48.050 [Test worker] INFO range - | request(1)
+19:30:58.053 [parallel-1] INFO flatMapped - cancel()
+19:30:58.053 [parallel-1] INFO range - | request(3)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
