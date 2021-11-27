@@ -1,4 +1,4 @@
-package ru.alfabank.mobile.reactor.exx;
+package ru.alfabank.mobile.reactor.exx.operators;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
