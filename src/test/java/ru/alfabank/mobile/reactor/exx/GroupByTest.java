@@ -17,7 +17,7 @@ public class GroupByTest {
     void groupByWithConcatMapPasses() {
         StepVerifier.create(
                         Flux.just(1, 3, 5, 2, 4, 6, 11, 12, 13)
-                                .groupBy(i -> "modulo is %s:".formatted(i % 5), 4)
+                                .groupBy(i -> "modulo is %s:".formatted(i % 5))
                                 .concatMap((GroupedFlux<String, Integer> g) ->
                                         g.defaultIfEmpty(-1)
                                                 .map(String::valueOf)
@@ -73,7 +73,7 @@ public class GroupByTest {
     }
 
     @Test
-    void groupByWithFlatMapHangsBecauseOfSmallPrefetch() {
+    void groupByWithFlatMapTimeoutBecauseOfSmallPrefetch() {
         int elementsCount = 10;
         int groupsAmount = 3;
         int flatMapConcurrency = 2;
