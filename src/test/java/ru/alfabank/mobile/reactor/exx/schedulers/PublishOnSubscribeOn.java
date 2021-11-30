@@ -5,6 +5,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
+import java.util.function.Function;
 
 public class PublishOnSubscribeOn {
 
@@ -91,6 +92,27 @@ public class PublishOnSubscribeOn {
                 .publishOn(Schedulers.boundedElastic())
                 .map(Long::parseLong)
                 .log("thread.boundary.after.boundedElastic")
+                .blockLast();
+    }
+
+    /**
+     * Смена потока не всегда происходит явно через операторы subscribeOn и publishOn.
+     * Например, при использовании оператора flatMap (merge), тред реактивного потока может поменяться.
+     * Но это не значит, что будет происходить конкурентная обработка! Спека гарантирует потокобезопасность.
+     */
+    @Test
+    void flatMapThread() {
+        Function<Long, Flux<Long>> fluxSupplier = (l) ->
+                Flux.interval(Duration.ofMillis(20))
+                        .take(5)
+                        .map((i) -> i + l);
+        Flux.merge(
+                        fluxSupplier.apply(100L),
+                        fluxSupplier.apply(200L),
+                        fluxSupplier.apply(300L),
+                        fluxSupplier.apply(400L)
+                )
+                .log()
                 .blockLast();
     }
 }
