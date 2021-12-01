@@ -7,7 +7,7 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.function.Function;
 
-public class PublishOnSubscribeOn {
+public class PublishOnSubscribeOnTest {
 
     /**
      * Ниже пример с несколькими вызовами publishOn.
